@@ -1,0 +1,23 @@
+version: "3.3"
+
+services:
+  sell_bot:
+    container_name: sell_bot
+    hostname: sell_bot
+    build:
+      context: ../
+      # args:
+        # - --no-cache
+    ports:
+      - "443:443"
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options: 
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    networks:
+      - mainnet
+
+networks:
+  mainnet:
+    external: true
