@@ -5,8 +5,8 @@ from aiogram.types import CallbackQuery, Message
 from resources import messages as mes
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils import config
-from bot.keyboards.inline import quest_6_kb,quest_5_kb
-from bot.fsm_states_groups import FilterCreateForm
+from bot_.keyboards.inline import quest_7_kb,quest_6_kb
+from bot_.fsm_states_groups import FilterCreateForm
 from utils.callback_data import CallbackData
 from utils.analytics import log
 
@@ -17,19 +17,19 @@ dp = Dispatcher()
 
 QUESTIONS_QUESTION__CD = CallbackData("questions_question", "action", "question")
 
-@router.callback_query(QUESTIONS_QUESTION__CD.filter(action="5"))
+@router.callback_query(QUESTIONS_QUESTION__CD.filter(action="6"))
 async def job_delivery_method(q: CallbackQuery, db_session: AsyncSession, state: FSMContext):
     await bot.answer_callback_query(q.id)
     callback_data = QUESTIONS_QUESTION__CD.parse(q.data)
     await state.update_data(action=callback_data["action"],
-                            min_redemption=str(callback_data["question"]))
-
+                            proc_sale=str(callback_data["question"]))
     dt = await state.get_data()
     list_item = []
     list_item.append(dt["avr_check"])
     list_item.append(dt["max_check"])
     list_item.append(dt["max_count"])
     list_item.append(dt["min_redemption"])
+    list_item.append(dt["proc_sale"])
     a = []
     for l in list_item:
         if l == 'False':
@@ -42,18 +42,20 @@ async def job_delivery_method(q: CallbackQuery, db_session: AsyncSession, state:
         return
     await bot.send_message(
         q.from_user.id,
-        text=mes.question_proc_sale_text, reply_markup=quest_6_kb())
-    await state.set_state(FilterCreateForm.proc_sale)
+        text=mes.question_proc_missrvenue_text, reply_markup=quest_7_kb())
+    await log(user_id=q.from_user.id,
+              user_lang_code=q.from_user.language_code,
+              action_name='answer_7')
 
-@router.message(state=FilterCreateForm.min_redemption)
+@router.message(state=FilterCreateForm.proc_sale)
 async def job_delivery_method(message: Message, state: FSMContext, db_session: AsyncSession):
     if not  message.text.isdigit():
         return await message.answer(
             text="Введите целое число:",
-            reply_markup=quest_5_kb())
+            reply_markup=quest_6_kb())
     await state.update_data(
-                        min_redemption=message.text)        
+                        proc_sale=message.text)        
     await bot.send_message(
         message.from_user.id,
-        text=mes.question_proc_sale_text, reply_markup=quest_6_kb())
-    await state.set_state(FilterCreateForm.proc_sale)
+        text=mes.question_proc_missrvenue_text, reply_markup=quest_7_kb())
+    await state.set_state(FilterCreateForm.proc_missrvenue)

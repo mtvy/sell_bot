@@ -5,8 +5,8 @@ from aiogram.types import CallbackQuery, Message
 from resources import messages as mes
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils import config
-from bot.keyboards.inline import quest_3_kb, quest_4_kb
-from bot.fsm_states_groups import FilterCreateForm
+from bot_.keyboards.inline import quest_3_kb, quest_4_kb
+from bot_.fsm_states_groups import FilterCreateForm
 from utils.callback_data import CallbackData
 from utils.analytics import log
 

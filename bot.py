@@ -51,7 +51,7 @@ def answers(msg : Message):
 
 
 @bot.callback_query_handler(func=lambda call: True)
-def callback_inline(call: CallbackQuery):
+def callback_inline(call: CallbackQuery, msg: Message):
     skipped = 0
     cid = call.message.id
     uid = call.from_user.id
@@ -59,12 +59,35 @@ def callback_inline(call: CallbackQuery):
     mid = call.message.message_id
 
     data = call.data 
-
+    msg = msg.text
+    tid = msg.chat.id
     
-    if data == GET_CALC:
+    if data=='cancel':
         #здесь пропишу функцию сохранения ответов
-        create_ask(log, bot, uid)
+        del_msg(log, bot, cid, mid)
 
+    if data == 'menu':
+        del_msg(log, bot, cid, mid)
+        send_msg(log, bot, tid, maketxt, get_ikb(log, DEFAULTKB_1))
+
+    if data == 'calculate':
+        del_msg(log, bot, cid, mid)
+        send_msg(log, bot, tid, seasontxt, get_ikb(log, SEASONS))
+    
+    if data in SEASONS.values():
+        send_msg(log, bot, tid, nichestxt, get_ikb(log, NISHES))
+    
+    if data == 'clothes':
+        del_msg(log, bot, cid, mid) 
+        send_msg(log, bot, tid, categorytxt, get_ikb(log, CLOTHES))
+    
+    if data == 'goods' or data == 'all':
+        del_msg(log, bot, cid, mid)
+        create_ask(log, bot, uid)
+    
+    if data in CLOTHES.values():
+        del_msg(log, bot, cid, mid)
+        create_ask(log, bot, uid, data)
     
     if data=='skip':
         create_ask(log, bot, uid)
@@ -72,8 +95,15 @@ def callback_inline(call: CallbackQuery):
 
         if skipped == 3:
             send_msg(log, bot, MISSERR)
+    
 
 
+if __name__ == "__main__":
+    try:
+        log.info('Starting...')
+        bot.polling(allowed_updates="chat_member")
+    except Exception as err:
+        log.error(f'Get polling error.\n\n{err}\n\n{tb.format_exc()}')
 
 
 

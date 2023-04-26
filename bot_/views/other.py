@@ -5,7 +5,7 @@ from aiogram.types import CallbackQuery, Message
 from resources import messages as mes
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils import config
-from bot.keyboards.inline import start_kb, quest_1_kb, subscribe
+from bot_.keyboards.inline import start_kb, quest_1_kb, subscribe
 from db import UsersRepository, SettingsRepository
 from utils.analytics import log
 

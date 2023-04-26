@@ -2,7 +2,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.dispatcher.fsm.context import FSMContext
 from aiogram.dispatcher.router import Router
 from aiogram.types import Message
-from bot.keyboards.inline import start_kb, subscribe
+from bot_.keyboards.inline import start_kb, subscribe
 from resources import messages as mes
 from db import UsersRepository, SettingsRepository
 from sqlalchemy.ext.asyncio import AsyncSession

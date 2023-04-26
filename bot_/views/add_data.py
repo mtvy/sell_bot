@@ -7,13 +7,13 @@ from aiogram.types import CallbackQuery, Message
 from aiogram.dispatcher.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils import config
-from bot.keyboards.inline import cancel_kb, accept_kb, start_kb
+from bot_.keyboards.inline import cancel_kb, accept_kb, start_kb
 from utils.callback_data import CallbackData
 from sqlalchemy import create_engine
 from utils import config
 from utils.services import users_decorator
 from pandas import json_normalize
-from bot.fsm_states_groups import FilterCreateForm
+from bot_.fsm_states_groups import FilterCreateForm
 from db import UsersRepository
 
 

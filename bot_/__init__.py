@@ -4,7 +4,7 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.dispatcher.fsm.storage.redis import RedisStorage
 
-from bot.middlewares import database_session_middleware
+from bot_.middlewares import database_session_middleware
 from db.utils import wait_for_mysql
 from utils import config
 from utils.redis import async_redis
