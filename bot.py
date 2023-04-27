@@ -34,8 +34,8 @@ def start(msg: Message) -> None:
     
     else:
         log.info(f'Bot starting by user:{tid}.')
-        if is_subscribed(log, tid, )==True:
-            send_msg(log, bot, tid,maketxt, get_ikb(log, DEFAULTKB_1))
+        if is_subscribed(bot, tid)==True:
+            send_msg(log, bot, tid, maketxt, get_ikb(log, DEFAULTKB_1))
         else:
             send_msg(log, bot, tid, substxt, get_ikb(log, CONTINUE))
 
@@ -91,11 +91,11 @@ def callback_inline(call: CallbackQuery):
     data = call.data 
 
     if data == 'continue':
-        sub = is_subscribed(log, bot, tid)
+        sub = is_subscribed(bot, tid)
         if sub == True:
             send_msg(log, bot, tid, maketxt, get_ikb(log, DEFAULTKB_1))
         else:
-            send_msg(log, bot, tid, maketxt, get_ikb(log, CONTINUE))
+            send_msg(log, bot, tid, pitytxt, get_ikb(log, CONTINUE))
 
     if data=='cancel':
         #??

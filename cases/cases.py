@@ -3,8 +3,14 @@ from telebot.types import Message, ReplyKeyboardRemove as rmvKb, CallbackQuery
 from .utils.msg import *
 from bot import bot 
 from .utils.params import *
+import logger, traceback as tb
+from telebot.apihelper import ApiTelegramException
 
-ADKB = {"huy":'shit'}
+log = logger.newLogger(__name__, logger.DEBUG)
+
+
+CHAT_ID = "-1001136057546"
+ADKB = {"idk":'idc'}
 GET_CALC = 'calculate'
 DEFAULTKB_1 = {'Сделать расчет' : GET_CALC}
 SEASONS = {'Летний сезон' : 'summer', "Прошлый сезон" : 'last_season', 'Отмена': 'cancel'}
@@ -120,6 +126,7 @@ substxt = '''⚠️ Чат-бот совершенно бесплатный, н�
 
 
 👉🏻  Нажми кнопку продолжить, чтобы проверить подписку'''
+pitytxt = """К сожалению, мы не обнаружили Вас в подписчиках канала https://t.me/+IN0lZonOmRk2ZTBi"""
 
 def get_season(number):
     """Определяем будущий сезон"""
@@ -135,5 +142,22 @@ def get_season(number):
     else:
         return number
 
-def is_subscribed(log, bot:TeleBot, tid:str|int) -> bool:
+def is_subscribed(bot:TeleBot, tid:str|int) -> bool:
+    
+    try:
+        response = bot.get_chat_member(chat_id=CHAT_ID, user_id=tid)
+        if response.status != 'left':
+            log.info(f'subscribed: {tid}')
+            return True
+        else:
+            log.info(f'not Subscribed: {tid}')
+           # to_db(bot, tid)
+            return False
+
+    except ApiTelegramException as e:
+        if e.result_json['description'] == 'Bad Request: chat not found':
+            log.error(f'Err {e}')
+            
+
+def to_db(bot: TeleBot, tid: str|int):
     pass
