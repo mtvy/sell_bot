@@ -1,13 +1,16 @@
 from telebot import TeleBot  
 from telebot.types import (
+    ReplyKeyboardRemove as rmvKb,
     CallbackQuery,
     Message
 )
 
 import logger, traceback as tb 
-import environ
+import environ 
+import cases
 from cases.utils.msg import *
 from cases.cases import *
+from cases.utils.state import *
 
 
 log = logger.newLogger(__name__, logger.DEBUG)
@@ -24,46 +27,80 @@ bot = TeleBot(token)
 
 @bot.message_handler(commands=['start'])
 def start(msg: Message) -> None:
-
     tid = str(msg.chat.id)
     if tid in admins:
         log.info(f'Bot starting by user:{tid}.')
-        send_msg(log, bot, tid, get_ikb(log, ADKB))
+        send_msg(log, bot, tid, maketxt, get_ikb(log, ADMKB))
     
     else:
         log.info(f'Bot starting by user:{tid}.')
-        send_msg(log, bot, tid, get_ikb(log, DEFAULTKB_1))
+        if is_subscribed(log, tid, )==True:
+            send_msg(log, bot, tid,maketxt, get_ikb(log, DEFAULTKB_1))
+        else:
+            send_msg(log, bot, tid, substxt, get_ikb(log, CONTINUE))
 
 
 @bot.message_handler(content_types=['text'])
 def answers(msg : Message):
     msg_ = msg.text
-    tid = str(msg.chat.id)
+    tid = msg.chat.id
+    states[tid] = state
     if tid in admins:
-        send_msg(log, bot, tid, get_ikb(log, ADKB))
+        send_msg(log, bot, tid, txt1, get_ikb(log, ADKB))
     else:
-        if msg_.isdigit():
-            #здесь пропишу функцию сохранения ответов
-            create_ask(log, bot, tid)
+         if msg_.isdigit():
+             if states[tid].res1 == 0:
+                states[tid].res1 = int(msg_)
+                send_msg(log, bot, tid, txt2, get_ikb(log, QUES2))
+
+             elif states[tid].res2 == 0:
+                states[tid].res2 = int(msg_)
+                send_msg(log, bot, tid, txt3, get_ikb(log, QUES3))
+
+             elif states[tid].res3 == 0:
+                states[tid].res3 = int(msg_)
+                send_msg(log, bot, tid, txt4, get_ikb(log, QUES4))
+
+             elif states[tid].res4 == 0:
+                states[tid].res4 = int(msg_)
+                send_msg(log, bot, tid, txt5, get_ikb(log, QUES5))
+
+             elif states[tid].res5 == 0:
+                states[tid].res5 = int(msg_)
+                send_msg(log, bot, tid, txt6, get_ikb(log, QUES6))
+
+             elif states[tid].res6 == 0:
+                states[tid].res6 = int(msg_)
+                send_msg(log, bot, tid, txt7, get_ikb(log, QUES7))
+
+             elif states[tid].res7 == 0:
+                states[tid].res7 = int(msg_)
+                state.close(log, bot, tid)
+         else:
+            send_msg(log, bot, tid, 'Пришлите целое число')
     
 
 
 @bot.callback_query_handler(func=lambda call: True)
-def callback_inline(call: CallbackQuery, msg: Message):
-    skipped = 0
+def callback_inline(call: CallbackQuery):
     cid = call.message.id
+    tid = call.message.chat.id
     uid = call.from_user.id
     unid = call.from_user.username
     mid = call.message.message_id
-
     data = call.data 
-    msg = msg.text
-    tid = msg.chat.id
-    
-    if data=='cancel':
-        #здесь пропишу функцию сохранения ответов
-        del_msg(log, bot, cid, mid)
 
+    if data == 'continue':
+        sub = is_subscribed(log, bot, tid)
+        if sub == True:
+            send_msg(log, bot, tid, maketxt, get_ikb(log, DEFAULTKB_1))
+        else:
+            send_msg(log, bot, tid, maketxt, get_ikb(log, CONTINUE))
+
+    if data=='cancel':
+        #??
+        del_msg(log, bot, cid, mid)
+        
     if data == 'menu':
         del_msg(log, bot, cid, mid)
         send_msg(log, bot, tid, maketxt, get_ikb(log, DEFAULTKB_1))
@@ -72,7 +109,9 @@ def callback_inline(call: CallbackQuery, msg: Message):
         del_msg(log, bot, cid, mid)
         send_msg(log, bot, tid, seasontxt, get_ikb(log, SEASONS))
     
-    if data in SEASONS.values():
+    if data in list(SEASONS.values())[:-1]:
+        
+        del_msg(log, bot, cid, mid)
         send_msg(log, bot, tid, nichestxt, get_ikb(log, NISHES))
     
     if data == 'clothes':
@@ -81,27 +120,117 @@ def callback_inline(call: CallbackQuery, msg: Message):
     
     if data == 'goods' or data == 'all':
         del_msg(log, bot, cid, mid)
-        create_ask(log, bot, uid)
+        send_msg(log, bot, tid, txt1, get_ikb(log, QUES_1))
     
-    if data in CLOTHES.values():
+    if data in list(CLOTHES.values())[:-1]:
         del_msg(log, bot, cid, mid)
-        create_ask(log, bot, uid, data)
-    
-    if data=='skip':
-        create_ask(log, bot, uid)
-        skipped+=1
+        send_msg(log, bot, tid, txt1, get_ikb(log, QUES_1))
+        
 
-        if skipped == 3:
-            send_msg(log, bot, MISSERR)
+
+    if Q1 in data:
+        states[tid] = state
+        states[tid].res1 = -1
+        states[tid].skipped += 1
+        send_msg(log, bot, tid, txt2, get_ikb(log, QUES2))
+        
+
+    if Q2 in data:
+        states[tid].res2 = -1
+        states[tid].skipped += 1
+        send_msg(log, bot, tid, txt3, get_ikb(log, QUES3))
+        
+        
+
+    if Q3 in data:
+        data = data.split(Q3)
+        
+        if data[0] != 'skip':
+            value = int(data[0])
+            states[tid].res3 = value
+            send_msg(log, bot, tid, txt4, get_ikb(log, QUES4))
+        else:
+            states[tid].skipped+=1
+            if states[tid].skipped >= 3:
+                send_msg(log, bot, tid, MISSERR)
+            else:
+                states[tid].res3 = -1
+                send_msg(log, bot, tid, txt4, get_ikb(log, QUES4))
+            
     
+
+    if Q4 in data:
+        data = data.split(Q4)
+        if data[0] != 'skip':
+            value = int(data[0])
+            states[tid].res4 = value
+            send_msg(log, bot, tid, txt5, get_ikb(log, QUES5))
+        else:
+            states[tid].skipped+=1
+            if states[tid].skipped >= 3:
+                send_msg(log, bot, tid, MISSERR)
+            else:
+                states[tid].res4 = -1
+                states[tid].skipped +=1
+                send_msg(log, bot, tid, txt5, get_ikb(log, QUES5))
+
+              
+
+    if Q5 in data:
+        data = data.split(Q5)
+        if data[0] != 'skip':
+            value = int(data[0])
+            states[tid].res5 = value
+            send_msg(log, bot, tid, txt6, get_ikb(log, QUES6))
+        else:
+            states[tid].skipped+=1
+            if states[tid].skipped >= 3:
+                send_msg(log, bot, tid, MISSERR)
+            else:
+                states[tid].res5 = -1
+                states[tid].skipped += 1
+                send_msg(log, bot, tid, txt6, get_ikb(log, QUES6))
+                
+
+    if Q6 in data:
+        data = data.split(Q6)
+        if data[0] != 'skip':
+            value = int(data[0])
+            states[tid].res6 = value
+            send_msg(log, bot, tid, txt7, get_ikb(log, QUES7))
+        else:
+            states[tid].skipped+=1
+            if states[tid].skipped >= 3:
+                send_msg(log, bot, tid, MISSERR)
+            else:
+                states[tid].res6 = -1
+                states[tid].skipped += 1
+                send_msg(log, bot, tid, txt7, get_ikb(log, QUES7))
+                
+
+    if Q7 in data:
+        data = data.split(Q7)
+        if data[0] != 'skip':
+            value = int(data[0])
+            states[tid].res7 = value
+            state.close(log, bot, tid)
+        else:
+            states[tid].skipped+=1
+            if states[tid].skipped >= 3:
+                send_msg(log, bot, tid, MISSERR)
+            else:
+                states[tid].res7 = -1 
+                states[tid].skipped += 1
+                state.close(log, bot, tid)
+                
+
 
 
 if __name__ == "__main__":
-    try:
-        log.info('Starting...')
-        bot.polling(allowed_updates="chat_member")
-    except Exception as err:
-        log.error(f'Get polling error.\n\n{err}\n\n{tb.format_exc()}')
+    try: 
+        bot.polling(none_stop=True)
+    except:
+        log.error(f"Program error!\n\n{tb.format_exc()}")
 
 
 

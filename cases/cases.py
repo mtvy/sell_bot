@@ -2,21 +2,42 @@ from telebot import TeleBot
 from telebot.types import Message, ReplyKeyboardRemove as rmvKb, CallbackQuery
 from .utils.msg import *
 from bot import bot 
+from .utils.params import *
 
-ADKB = ...
+ADKB = {"huy":'shit'}
 GET_CALC = 'calculate'
 DEFAULTKB_1 = {'Сделать расчет' : GET_CALC}
 SEASONS = {'Летний сезон' : 'summer', "Прошлый сезон" : 'last_season', 'Отмена': 'cancel'}
 SKIP = 'Пропустить вопрос'
-SKIP_Q = {"Пропустить вопрос" : 'skip'}
-QUES3 = {'1000' : '1000', '10 000' : '10 000', '50 000' : '50 000', '100 000' : '100 000', SKIP:'skip'}
-QUES4_5 = {'30%' : '30', '50%':'50', '70%':'70', '90%' : '90', SKIP:'skip'}
-QUES6 = {'10%' : '10' , '30%':'30', '50%':'50', '70%':'70',SKIP:'skip'}
-QUES7 = {'20%' : '20', '50%' : '50', '70%' : '50', '100%':'100', SKIP:'skip'}
+SKIP_Q = {"Пропустить вопрос" : f'{SKIP}'}
+CONTINUE = {'Продолжить':'continue'}
+
+admin = 'ADM'
+Q1 = 'q1'
+Q2 = 'q2'
+Q3 = 'q3'
+Q4 = 'q4'
+Q5 = 'q5'
+Q6 = 'q6'
+Q7 = 'q7'
+
+QUES_1 = {"Пропустить вопрос" : f'skip{Q1}res1'}
+QUES2 = {'Пропустить вопрос' : f'skip{Q2}res2'}
+QUES3 = {'1000' : f'1000{Q3}res3', '10 000' : f'10000{Q3}res3', '50 000' : f'50000{Q3}res3', '100 000' : f'100000{Q3}res3', SKIP:f'skip{Q3}res3'}
+QUES4 = {'30%' : f'30{Q4}res4', '50%':f'50{Q4}res4', '70%':f'70{Q4}res4', '90%' : f'90{Q4}res4', SKIP: f'skip{Q4}res4'}
+QUES5 = {'30%' : f'30{Q5}res5', '50%': f'50{Q5}res5', '70%':f'70{Q5}res5', '90%' : f'90{Q5}res5', SKIP:f'skip{Q5}res5'}
+QUES6 = {'10%' : f'10{Q6}res6' , '30%':f'30{Q6}res6', '50%':f'50{Q6}res6', '70%':f'70{Q6}res6',SKIP:f'skip{Q6}res6'}
+QUES7 = {'20%' : f'20{Q7}res7', '50%' : f'50{Q7}res7', '70%' : f'70{Q7}res7', '100%':f'100{Q7}res7', SKIP:f'skip{Q7}res7'}
 MISSERR = 'Вы пропустили 3 вопроса. Максимальное числов не отвеченных вопросов не должно превышать 2 '
 MENU = {'Главное меню' : 'menu'}
 NISHES = {'Одежда':'clothes', 'Товары': 'goods', 'Все ниши': 'all', 'Отмена': 'cancel'}
-CLOTHES = {'Женская': 'women', 'Мужская': 'men', 'Детская': 'child', 'Вся одежда': 'all_cl', 'Отмена': 'cancel'}
+CLOTHES = {'Женская': 'women', 'Мужская': 
+           'men', 'Детская': 'child', 'Вся одежда': 'all_cl', 'Отмена': 'cancel'}
+
+ADMKB = {'Сделать расчет' : GET_CALC, 'Загрузить данные за прошлый месяц' : 'last_month', 
+         'Загрузить данные за будущий период':'load_next',
+           '📊 Статистика':'stats', 'Подписка':'subscribe'}
+
 
 WAITTXT = '''Все данные получены, отчет формируется.
 
@@ -70,6 +91,8 @@ txt7 = """7/7
 50%: весь товар в нише продается за 2 месяца
 20%: весь товар в нише продается за 5 месяцев"""
 
+admtxt='Выберите вариант подписки'
+
 maketxt = """⚠️Чтобы бот подобрал ниши для выхода на маркетплейс,
 тебе необходимо задать параметры выборки.
 
@@ -89,106 +112,28 @@ nichestxt = """❓Какую нишу будем рассматривать ?
 
 В текущей версии бота можно проанализировать отдельно  товары или сделать анализ по всем нишам сразу."""
 
-categorytxt = 'ℹ️ Выберите категорию одежды.'
+categorytxt = 'ℹ️ Выберите категорию одежды.'  
+
+substxt = '''⚠️ Чат-бот совершенно бесплатный, но для дальнейшего использования прошу подписаться на мой канал: https://t.me/+IN0lZonOmRk2ZTBi
+
+Рассказываю на своем примере, как выбрать товар для маркетплейса, вырасти без долгой тягомотины и продавать на миллионы.
 
 
-def create_ask(log, bot: TeleBot, tid: str|int):
-  
-    wait_msg(log, bot, tid, qs2, txt1, get_ikb(log, SKIP_Q))
+👉🏻  Нажми кнопку продолжить, чтобы проверить подписку'''
 
-#@bot.callback_query_handler(func=lambda call: True)
-def qs2(log, bot:TeleBot, tid, data, msg: Message|None):
-   # global cid2
-    # cid2 = call.message.id
-    # uid = call.from_user.id
-    # unid = call.from_user.username
-    # mid = call.message.message_id
+def get_season(number):
+    """Определяем будущий сезон"""
 
-    # data = call.data 
-    msg = msg.text
+    if number == 9 or number == 10 or number == 11:
+        return season_winter_btn
+    elif number == 12 or number == 1 or number == 2:
+        return season_spring_btn
+    elif number == 3 or number == 4 or number == 5:
+        return season_summer_btn
+    elif number == 6 or number == 7 or number == 8:
+        return season_autumn_btn
+    else:
+        return number
 
-    if msg:
-        if msg.isdigit():
-            #save_ans
-            qs2 = wait_msg(log, bot, tid, qs3, txt2, get_ikb(log, QUES3))
-            
-        
-    elif data:
-        #save_ans
-        qs3(log, bot, tid)
-    
-
-#@bot.callback_query_handler(func=lambda call: True)
-def qs3(log, bot:TeleBot, call: CallbackQuery, data, tid, msg: Message|None):
-    #global cid3
-    cid3 = call.message.id
-    uid = call.from_user.id
-    unid = call.from_user.username
-    mid = call.message.message_id
-
-    data = call.data 
-    msg = msg.text
-    if msg:
-        if msg.isdigit():
-            #save_ans
-            qs3 = wait_msg(log, bot, tid, qs4, txt3, get_ikb(log, QUES4_5))
-           
-    elif data:
-        #save_ans
-        pass 
-
-
-#@bot.callback_query_handler(func=lambda call: True)
-def qs4(log, bot:TeleBot, call: CallbackQuery|None, tid, msg: Message|None):
-    data = call.data 
-    msg = msg.text 
-
-    if msg:    
-        if msg.isdigit():
-            #save_ans
-            qs4 = wait_msg(log, bot, tid, qs5, txt4, get_ikb(log, QUES4_5))
-            
-    elif data:
-        #save_ans
-        send_msg(log, bot, tid, txt4, get_ikb(log, QUES4_5))
-
-
-#@bot.callback_query_handler(func=lambda call: True)
-def qs5(log, bot:TeleBot, call: CallbackQuery|None, tid, msg: Message|None):
-    data = call.data 
-
-    if msg:    
-        qs5 = wait_msg(log, bot, tid, qs6, txt5, get_ikb(log, QUES4_5))
-        
-    elif data:
-        send_msg(log, bot, tid, txt6, get_ikb(log, QUES6))
-
-
-#@bot.callback_query_handler(func=lambda call:True)
-def qs6(log, bot:TeleBot, call: CallbackQuery, tid, msg: Message|None):
-    data = call.data 
-    if msg:
-        qs6 = wait_msg(log, bot, tid, qs7, txt6, get_ikb(log, QUES6))
-        
-    elif data:
-        pass
-
-    if msg:
-        qs7 = wait_msg(log, bot, tid, make_res, txt7, get_ikb(log, QUES7))
-        
-    elif data:
-        pass 
-
-
-def qs7(log, bot:TeleBot, call: CallbackQuery|None, tid, msg:Message|None=None):
-    data = call.data 
-    #save_ans
-    send_msg(log, bot, tid, WAITTXT)
-
-        
-
-def make_res(log, bot:TeleBot, tid:str|int):
+def is_subscribed(log, bot:TeleBot, tid:str|int) -> bool:
     pass
-
-
-
