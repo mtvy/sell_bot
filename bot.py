@@ -21,13 +21,15 @@ bot = TeleBot(token)
 @bot.message_handler(commands=['start'])
 def start(msg: Message) -> None:
     tid = str(msg.chat.id)
+    uid = msg.from_user.id
+    states[tid] = State(tid)
     if tid in admins:
         log.info(f'Bot starting by user:{tid}.')
         send_msg(log, bot, tid, maketxt, get_ikb(log, ADMKB))
     
     else:
         log.info(f'Bot starting by user:{tid}.')
-        if is_subscribed(bot, tid)==True:
+        if is_subscribed(bot, tid)!=True:
             send_msg(log, bot, tid, maketxt, get_ikb(log, DEFAULTKB_1))
         else:
             send_msg(log, bot, tid, substxt, get_ikb(log, CONTINUE))
@@ -37,38 +39,42 @@ def start(msg: Message) -> None:
 def answers(msg : Message):
     txt = msg.text
     tid = msg.chat.id
-    states[tid] = state
+    # state = State(tid)
+    # states[tid] = state
+    # states[tid]=State(tid)
     if str(tid) in admins:
         send_msg(log, bot, tid, txt1, get_ikb(log, ADKB))
     else:
          if txt.isdigit():
-             if states[tid].res1 == 0:
-                states[tid].res1 = int(txt)
-                send_msg(log, bot, tid, txt2, get_ikb(log, QUES2))
+             
+             if states[tid].is_active: 
+                if states[tid].res1 == 0:
+                    states[tid].res1 = int(txt)
+                    send_msg(log, bot, tid, txt2, get_ikb(log, QUES2))
 
-             elif states[tid].res2 == 0:
-                states[tid].res2 = int(txt)
-                send_msg(log, bot, tid, txt3, get_ikb(log, QUES3))
+                elif states[tid].res2 == 0:
+                    states[tid].res2 = int(txt)
+                    send_msg(log, bot, tid, txt3, get_ikb(log, QUES3))
 
-             elif states[tid].res3 == 0:
-                states[tid].res3 = int(txt)
-                send_msg(log, bot, tid, txt4, get_ikb(log, QUES4))
+                elif states[tid].res3 == 0:
+                    states[tid].res3 = int(txt)
+                    send_msg(log, bot, tid, txt4, get_ikb(log, QUES4))
+                    print(states[tid].res1)
+                elif states[tid].res4 == 0:
+                    states[tid].res4 = int(txt)
+                    send_msg(log, bot, tid, txt5, get_ikb(log, QUES5))
 
-             elif states[tid].res4 == 0:
-                states[tid].res4 = int(txt)
-                send_msg(log, bot, tid, txt5, get_ikb(log, QUES5))
+                elif states[tid].res5 == 0:
+                    states[tid].res5 = int(txt)
+                    send_msg(log, bot, tid, txt6, get_ikb(log, QUES6))
 
-             elif states[tid].res5 == 0:
-                states[tid].res5 = int(txt)
-                send_msg(log, bot, tid, txt6, get_ikb(log, QUES6))
-
-             elif states[tid].res6 == 0:
-                states[tid].res6 = int(txt)
-                send_msg(log, bot, tid, txt7, get_ikb(log, QUES7))
-
-             elif states[tid].res7 == 0:
-                states[tid].res7 = int(txt)
-                state.close(log, bot, tid)
+                elif states[tid].res6 == 0:
+                    states[tid].res6 = int(txt)
+                    send_msg(log, bot, tid, txt7, get_ikb(log, QUES7))
+                    
+                elif states[tid].res7 == 0:
+                    states[tid].res7 = int(txt)
+                    states[tid].close(log, bot, tid)
          else:
             send_msg(log, bot, tid, 'Пришлите целое число')
     
@@ -112,17 +118,21 @@ def callback_inline(call: CallbackQuery):
         send_msg(log, bot, tid, categorytxt, get_ikb(log, CLOTHES))
     
     if data == 'goods' or data == 'all':
-        del_msg(log, bot, cid, mid)
-        send_msg(log, bot, tid, txt1, get_ikb(log, QUES_1))
+        states[tid] = State(tid)
+        if states[tid].is_active:
+            del_msg(log, bot, cid, mid)
+            send_msg(log, bot, tid, txt1, get_ikb(log, QUES_1))
     
     if data in list(CLOTHES.values())[:-1]:
-        del_msg(log, bot, cid, mid)
-        send_msg(log, bot, tid, txt1, get_ikb(log, QUES_1))
+        states[tid] = State(tid)
+        if states[tid].is_active:
+            del_msg(log, bot, cid, mid)
+            send_msg(log, bot, tid, txt1, get_ikb(log, QUES_1))
         
 
 
     if Q1 in data:
-        states[tid] = state
+       # states[tid] = state
         states[tid].res1 = -1
         states[tid].skipped += 1
         send_msg(log, bot, tid, txt2, get_ikb(log, QUES2))
@@ -206,16 +216,16 @@ def callback_inline(call: CallbackQuery):
         if data[0] != 'skip':
             value = int(data[0])
             states[tid].res7 = value
-            state.close(log, bot, tid)
+            states[tid].close(log, bot, tid)
         else:
             states[tid].skipped+=1
+            
             if states[tid].skipped >= 3:
                 send_msg(log, bot, tid, MISSERR)
             else:
                 states[tid].res7 = -1 
                 states[tid].skipped += 1
-                state.close(log, bot, tid)
-                
+                states[tid].close(log, bot, tid)
 
 
 

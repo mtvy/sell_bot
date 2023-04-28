@@ -22,10 +22,11 @@ class State:
     res7 : int = 0
     skipped: int = 0
 
-    def __init__(self) -> None:
-        self.is_active = True 
+    def __init__(self, tid) -> None:
+        self.is_active = True
+        self.tid = tid 
 
-    def close(self, log, bot: TeleBot, tid: str|int, categories) -> None:
+    def close(self, log, bot: TeleBot) -> None:
         #make_res
         self.is_active = False 
         def excel_report(res1, res2, res3, res4, res5, res6, res7):
