@@ -1,29 +1,22 @@
 from telebot import TeleBot  
 from telebot.types import (
-    ReplyKeyboardRemove as rmvKb,
     CallbackQuery,
     Message
 )
 
-import logger, traceback as tb 
-import environ 
-import cases
+import logger, dotenv, os 
 from cases.utils.msg import *
 from cases.cases import *
 from cases.utils.state import *
 
 
 log = logger.newLogger(__name__, logger.DEBUG)
-env = environ.Env()
-environ.Env.read_env()
 
-token = env("TOKEN")
-admins = env("ADMINS")
+dotenv.load_dotenv('.env')
+token = os.getenv('TOKEN')
+admins = os.getenv('ADMINS')
 
 bot = TeleBot(token)
-
-
-
 
 @bot.message_handler(commands=['start'])
 def start(msg: Message) -> None:
@@ -42,39 +35,39 @@ def start(msg: Message) -> None:
 
 @bot.message_handler(content_types=['text'])
 def answers(msg : Message):
-    msg_ = msg.text
+    txt = msg.text
     tid = msg.chat.id
     states[tid] = state
-    if tid in admins:
+    if str(tid) in admins:
         send_msg(log, bot, tid, txt1, get_ikb(log, ADKB))
     else:
-         if msg_.isdigit():
+         if txt.isdigit():
              if states[tid].res1 == 0:
-                states[tid].res1 = int(msg_)
+                states[tid].res1 = int(txt)
                 send_msg(log, bot, tid, txt2, get_ikb(log, QUES2))
 
              elif states[tid].res2 == 0:
-                states[tid].res2 = int(msg_)
+                states[tid].res2 = int(txt)
                 send_msg(log, bot, tid, txt3, get_ikb(log, QUES3))
 
              elif states[tid].res3 == 0:
-                states[tid].res3 = int(msg_)
+                states[tid].res3 = int(txt)
                 send_msg(log, bot, tid, txt4, get_ikb(log, QUES4))
 
              elif states[tid].res4 == 0:
-                states[tid].res4 = int(msg_)
+                states[tid].res4 = int(txt)
                 send_msg(log, bot, tid, txt5, get_ikb(log, QUES5))
 
              elif states[tid].res5 == 0:
-                states[tid].res5 = int(msg_)
+                states[tid].res5 = int(txt)
                 send_msg(log, bot, tid, txt6, get_ikb(log, QUES6))
 
              elif states[tid].res6 == 0:
-                states[tid].res6 = int(msg_)
+                states[tid].res6 = int(txt)
                 send_msg(log, bot, tid, txt7, get_ikb(log, QUES7))
 
              elif states[tid].res7 == 0:
-                states[tid].res7 = int(msg_)
+                states[tid].res7 = int(txt)
                 state.close(log, bot, tid)
          else:
             send_msg(log, bot, tid, 'Пришлите целое число')
@@ -227,10 +220,13 @@ def callback_inline(call: CallbackQuery):
 
 
 if __name__ == "__main__":
-    try: 
-        bot.polling(none_stop=True)
-    except:
-        log.error(f"Program error!\n\n{tb.format_exc()}")
+    try:
+        log.info(f'Token:{token}')
+        log.info(f'Admins:{admins}')
+        log.info('Starting...')
+        bot.polling(allowed_updates="chat_member")
+    except Exception as err:
+        log.error(err)
 
 
 
