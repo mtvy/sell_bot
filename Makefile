@@ -34,7 +34,7 @@ shutdown: shut down-serve down
 down-serve:
 	cd accessor && make shut && make shutdown && make down
 shut:
-	$(SUDO) docker stop tg_asker
+	$(SUDO) docker stop sell_bot
 down:
 	cd deploy && $(SUDO) docker-compose down
 # - - - - - - - - - - - - - - - - -

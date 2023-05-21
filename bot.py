@@ -4,8 +4,7 @@ from telebot.types import (
     CallbackQuery,
     Message,
 )
-from prettytable import PrettyTable
-from texttable import Texttable
+
 from tabulate import tabulate
 
 import pandas as pd
