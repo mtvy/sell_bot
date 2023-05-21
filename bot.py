@@ -210,7 +210,7 @@ def callback_inline(call: CallbackQuery):
         GROUP BY created_at;
         """
         cases.del_msg(log, bot, tid, mid)
-        data, stat = cases.db.get("date_trunc('day', created_at), COUNT(*)", 'user_tb', 'GROUP BY created_at')
+        data, stat = cases.db.get("date_trunc('day', created_at) as day, COUNT(*)", 'user_tb', 'GROUP BY day')
         if stat != 'ok':
             log.error(f'stat:{stat} data:{data}')
             cases.send_msg(log, bot, dev, cases.DBERR, cases.get_kb(log, cases.DEFALTKB))
