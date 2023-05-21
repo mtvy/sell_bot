@@ -8,7 +8,7 @@ from telebot.types import (
 from tabulate import tabulate
 
 import pandas as pd
-import logger, dotenv, os
+import logger, dotenv, os, traceback
 import cases
 
 REPLY = "reply"
@@ -221,13 +221,9 @@ def callback_inline(call: CallbackQuery):
             log.error(f'stat:{stat} data:{data}')
             cases.send_msg(log, bot, dev, cases.DBERR, cases.get_kb(log, cases.DEFALTKB))
             return
-        # df = pd.DataFrame(list(data.values()), columns=["Дата входа", "Количество"])
-        # cases.send_msg(log, bot, tid, df.to_string(index=False), rmvKb())
-        # table = PrettyTable(["Дата входа", "Кол-во"])
-        # for row in data.values():
-        #     table.add_row([row[0][:10], row[1]])
-        # table = Texttable()
-        # table.add_rows([["Дата входа", "Кол-во"], *list(data.values())])
+        if not len(data):
+            cases.send_msg(log, bot, tid, 'Нет данных', rmvKb())
+            return
         stats = []
         for row in data.values():
             stats.append([row[0][:10], row[1]])
@@ -362,7 +358,6 @@ def callback_inline(call: CallbackQuery):
         cases.states[tid].last_mid = msg.message_id
         return
 
-
 if __name__ == "__main__":
     try:
         log.info(f'Token:{token}')
@@ -370,7 +365,7 @@ if __name__ == "__main__":
         log.info('Starting...')
         bot.polling(allowed_updates="chat_member")
     except Exception as err:
-        log.error(err)
+        log.error(err + f'{traceback.format_exc()}')
 
 
 
