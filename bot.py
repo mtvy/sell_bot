@@ -130,7 +130,7 @@ def load_doc(msg: Message, log, bot: TeleBot, tid: int, mid: int, file_name: str
         file_info = bot.get_file(msg.document.file_id)
         doc = bot.download_file(file_info.file_path)
         log.debug("Got doc")
-        with open(f'docs/{file_name}.xlsx', 'wb') as f:
+        with open(f'./docs/{file_name}.xlsx', 'wb') as f:
             f.write(doc)
         cases.send_msg(log, bot, tid, "Файл загружен.", rmvKb())
     except Exception as err:
@@ -167,12 +167,6 @@ def callback_inline(call: CallbackQuery):
         cases.del_msg(log, bot, tid, mid)
         cases.wait_msg(log, bot, tid, load_doc, 'Отправьте таблицу в формате xlsx:', 
                  cases.get_kb(log, ["Отмена"]), [log, bot, tid, mid, data])
-        return
-    
-    if data == "last_month":
-        cases.del_msg(log, bot, tid, mid)
-        cases.wait_msg(log, bot, tid, load_doc, 'Отправьте таблицу в формате xlsx:', 
-                 cases.get_kb(log, ["Отмена"]), [log, bot, tid, mid, "last_month"])
         return
         
     if data == 'menu':

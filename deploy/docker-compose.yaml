@@ -8,6 +8,8 @@ services:
       context: ../
       # args:
         # - --no-cache
+    volumes:
+      - ../docs:./docs
     ports:
       - "443:443"
     restart: unless-stopped
