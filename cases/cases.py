@@ -1,15 +1,14 @@
 from telebot import TeleBot
-from telebot.types import Message, ReplyKeyboardRemove as rmvKb, CallbackQuery
 from .utils.msg import *
-from bot import bot 
 from .utils.params import *
-import logger, traceback as tb
+import logger
 from telebot.apihelper import ApiTelegramException
 
 log = logger.newLogger(__name__, logger.DEBUG)
 
 
-CHAT_ID = "-1001136057546"
+CHAT_ID = "-1001852937628"
+# CHAT_ID = "-1001136057546"
 ADKB = {"idk":'idc'}
 GET_CALC = 'calculate'
 DEFAULTKB_1 = {'Сделать расчет' : GET_CALC}
@@ -41,8 +40,8 @@ CLOTHES = {'Женская': 'women', 'Мужская':
            'men', 'Детская': 'child', 'Вся одежда': 'all_cl', 'Отмена': 'cancel'}
 
 ADMKB = {'Сделать расчет' : GET_CALC, 'Загрузить данные за прошлый месяц' : 'last_month', 
-         'Загрузить данные за будущий период':'load_next',
-           '📊 Статистика':'stats', 'Подписка':'subscribe'}
+         'Загрузить данные за будущий период':'next_month',
+           '📊 Статистика':'stats'}
 
 
 WAITTXT = '''Все данные получены, отчет формируется.
@@ -128,36 +127,16 @@ substxt = '''⚠️ Чат-бот совершенно бесплатный, н�
 👉🏻  Нажми кнопку продолжить, чтобы проверить подписку'''
 pitytxt = """К сожалению, мы не обнаружили Вас в подписчиках канала https://t.me/+IN0lZonOmRk2ZTBi"""
 
-def get_season(number):
-    """Определяем будущий сезон"""
-
-    if number == 9 or number == 10 or number == 11:
-        return season_winter_btn
-    elif number == 12 or number == 1 or number == 2:
-        return season_spring_btn
-    elif number == 3 or number == 4 or number == 5:
-        return season_summer_btn
-    elif number == 6 or number == 7 or number == 8:
-        return season_autumn_btn
-    else:
-        return number
 
 def is_subscribed(bot:TeleBot, tid:str|int) -> bool:
-    
     try:
         response = bot.get_chat_member(chat_id=CHAT_ID, user_id=tid)
         if response.status != 'left':
             log.info(f'subscribed: {tid}')
             return True
-        else:
-            log.info(f'not Subscribed: {tid}')
-           # to_db(bot, tid)
-            return False
-
+        log.info(f'not Subscribed: {tid}')
     except ApiTelegramException as e:
         if e.result_json['description'] == 'Bad Request: chat not found':
             log.error(f'Err {e}')
+    return False
             
-
-def to_db(bot: TeleBot, tid: str|int):
-    pass
