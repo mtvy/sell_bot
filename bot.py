@@ -365,7 +365,7 @@ if __name__ == "__main__":
         log.info('Starting...')
         bot.polling(allowed_updates="chat_member")
     except Exception as err:
-        log.error(err + f'{traceback.format_exc()}')
+        log.error(f'{err}, {traceback.format_exc()}')
 
 
 
