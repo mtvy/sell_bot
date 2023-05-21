@@ -9,7 +9,7 @@ services:
       # args:
         # - --no-cache
     volumes:
-      - ../docs:./docs
+      - ../docs:/docs
     ports:
       - "443:443"
     restart: unless-stopped

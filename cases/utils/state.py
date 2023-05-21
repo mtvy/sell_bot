@@ -45,6 +45,7 @@ class State:
             df = pd.read_excel('docs/last_month.xlsx' if self.season=='last_season' else 'docs/next_month.xlsx') #, usecols=[0, 1, 2], nrows=10)
             tb = df.to_dict()
             keys = list(tb.keys())
+            log.debug(tb)
             if len(keys) > 10:
                 indexes_to_drop = []
                 if self.sphere != 'all':
